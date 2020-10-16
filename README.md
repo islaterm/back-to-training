@@ -46,6 +46,24 @@ $$
 Usa la
 [Hoja de respuesta](https://colab.research.google.com/drive/1a44G8JIfuaAXmare28dCDT1gvUV1CuDP) para incluir tus expresiones.
 
+#### (b) Entropía Cruzada
+
+Comenzaremos haciendo una función para computar la pérdida de nuestra red. Recuerda que para dos distribuciones de probabilidad discreta $p(x)$ y $q(x)$ la entropía cruzada (cross entropy) entre $p$ y $q$ está dada por
+
+\begin{equation}
+\it{CE}(p,q)=\sum_{x}p(x)\log \bigg(\frac{1}{q(x)}\bigg)=- \sum_{x}p(x)\log q(x)
+\end{equation}
+donde $x$ varía sobre todos los posibles valores para los cuales la distribución está definida.
+
+En esta parte debes programar la función `CELoss` que recibe tensores $Q_{ij}$ y $P_{ij}$ (de las mismas dimensiones) y calcula el promedio de las entropías cruzadas de las distribuciones $p_i$ y $q_i$ de la siguiente forma
+
+\begin{equation}
+\it{CELoss}(Q,P)=\frac{1}{N}\sum_{i}\it{CE}(p_{i}, q_{i})
+\end{equation}
+donde $p_i(x)=P_{ix}$, $q_i(x)=Q_{ix}$ y $N$ es el tamaño de la primera dimension de los tensores (dimension `0`). Nota que el resultado es un escalar. Nota también el orden de $Q$ y $P$ en $\it{CELoss}(Q,P)$. Esto no es un error, sino es la forma standard de usar la entropía cruzada como una función de error, en donde el primer argumento ($Q$) es la aproximación (distribución de probabilidad erronea) y el segundo argumento ($P$) es el valor al que nos queremos acercar (distribución de probabilidad real, o más percisamente en nuestro caso, distribución de probabilidad empírica).
+
+En nuestra implementación debemos evitar cualquier ocurrencia de `NaN` debido a valores en nuestras distribuciones de probabilidad excesivamente pequeños al calcular `torch.log`. Estos valores deberían devolver números negativos demasiado pequeños para procesar y dan como resultado `NaN`. El valor épsilon limitará el valor mínimo del valor original cuando `estable=True`.
+
 ### Parte 4: Descenso de gradiente y entrenamiento
 
 En esta parte programaras el algoritmo de descenso de gradiente más común y entrenarás finalmente tu
@@ -73,4 +91,33 @@ for x,y in datos:
   l = CELoss(y_pred, y)
   red.backward(x, y, y_pred)
   optimizador.step()
+```
+
+#### (b) Datos para carga
+
+En esta parte crearás un conjunto de datos de prueba aleatorios para probar con tu red.
+La idea de partir con datos al azar es para que te puedas concentrar en encontrar posibles bugs en
+tu implementación antes de probar tu red con cosas más complicadas.
+
+Para esta parte debes crear una clase `RandomDataset` como subclase de `Dataset` (que se encuentra
+en el módulo `torch.utils.data`).
+Tu clase debe recibir en su inicializador la cantidad de ejemplos a crear, la cantidad de
+características de cada ejemplo, y la cantidad de clases en la función objetivo.
+Debes definir la función `__len__` que retorna el largo del dataset y la función `__getitem__` que
+permite acceder a un item específico de los datos.
+Cada elemento entregado por `__getitem__` debe ser un par $(x, y)$ con un único ejemplo, donde $x$
+es un tensor que representa a los datos de entrada (características) e $y$ representa al valor
+esperado de la clasificación para esa entrada.
+
+Lo positivo de definir un conjunto de datos como `Dataset` es que luego puedes usar un `DataLoader`
+para iterar por paquetes sobre el dataset y entregarlos a una red (tal como lo hiciste en la Tarea 1
+para MNIST).
+El siguiente trozo de código de ejemplo muestra cómo debieras usar tu clase en conjunto con un
+`DataLoader`.
+
+```python
+dataset = RandomDataset(1000, 200, 10)
+data = DataLoader(dataset, batch_size=4)
+for x,y in data:
+  # x,y son paquetes de 4 ejemplos del dataset.
 ```
