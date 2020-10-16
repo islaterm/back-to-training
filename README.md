@@ -45,3 +45,43 @@ $$
 
 Usa la
 [Hoja de respuesta](https://colab.research.google.com/drive/1a44G8JIfuaAXmare28dCDT1gvUV1CuDP) para incluir tus expresiones.
+
+### Parte 2: Más derivadas y back propagation
+
+En esta parte comenzaremos a usar el algoritmo de back propagation para poder actualizar los parámetros de nuestra red neuronal (la que empezaste a construir en la Tarea 1). Nuestra red está dada por las ecuaciones
+$$
+\begin{aligned}
+  h^{(\ell)}  & = f^{(\ell)}(h^{(\ell - 1)} W^{(\ell)} + b^{(\ell)}) \\
+  \hat{y}     & = \mathit{softmax}(h^{(L)}U + c).
+\end{aligned}
+$$
+
+Recuerda que en estas ecuaciones consideramos que el $h^{(0)}$ es el tensor de input, digamos $x$, y típicamente llamamos a $\hat{y}$ como $\hat{y}=\mathit{forward}(x)$.
+
+Para optimizar los parámetros de nuestra red usaremos la función de pérdida/error de entropía cruzada (ver la parte anterior). Dado un conjunto (mini batch) de ejemplos $\{(x_1,y_1),\ldots,(x_B,y_B)\}$, llamemos $x$ al tensor que contiene a todos los $x_i$'s *apilados* en su dimensión $0$. Nota que $x$ tendrá una dimensión más que los $x_i$'s. Similarmente llamemos $y$ al tensor que contiene a todos los $y_i$'s. La función de pérdida de la red se puede entonces escribir como
+
+$$
+\mathcal{L} = \mathit{CELoss}(\hat{y}, {y})
+$$
+donde $\hat{y}=\mathit{forward}(x)$ y $\mathit{CELoss}(\hat{y},{y})$ es la función de entropía cruzada aplicada a $\hat{y}$ e $y$. En esta parte computaremos las derivadas parciales
+
+$$
+\frac{\partial \mathcal{L}}{\partial \theta}
+$$
+para cada parámetro $\theta$ de nuestra red.
+
+#### (a) Derivando la última capa
+
+Recuerda que $\hat y = \mathit{softmax}(h^{(L)}U + c)$.
+Nuestro objetivo en esta parte es calcular la derivada de $\mathcal{L}$ con respecto a $U$,
+$h^{(L)}$ y $c$.
+Para esto llamemos primero
+
+$$
+u^{(L+1)} = h^{(L)}U + c.
+$$
+
+Nota que con esto, nuestra predicción es simplemente $\hat{y} = \mathit{softmax}(u^{(L + 1)})$.
+Calcula la derivada (el *gradiente*) de $\mathcal{L}$ respecto a $u^{(L + 1)}$, y escribe un trozo
+de código usando las funcionalidades de `torch` que calcule el valor y lo almacene en una variable
+`dL_duLm1`, suponiendo que cuentas con los tensores `y` e `y_pred` (que representa a $\hat{y}$).
