@@ -45,3 +45,32 @@ $$
 
 Usa la
 [Hoja de respuesta](https://colab.research.google.com/drive/1a44G8JIfuaAXmare28dCDT1gvUV1CuDP) para incluir tus expresiones.
+
+### Parte 4: Descenso de gradiente y entrenamiento
+
+En esta parte programaras el algoritmo de descenso de gradiente más común y entrenarás finalmente tu
+red para que encuentre parámetros que le permitan clasificar datos aleatorios (mas abajo podrás
+hacerlo opcionalmente también para MNIST).
+
+#### (a) Descenso de gradiente (estocástico)
+
+Construye una clase `SGD` que implemente el algoritmo de descenso de gradiente. El inicializador de
+la clase debe recibir al menos dos argumentos: un "iterable" de parámetros a los cuales aplicarles
+el descenso de gradiente, y un valor real `lr` correspondiente a la taza de aprendizaje para el
+descenso de gradiente.
+El único método que debes implementar es el método `step` que debe actualizar todos los parámetros.
+En este caso asumiremos que a cada parámetro ya se le han computado los gradientes (todos
+almacenados en el atributo `.grad` de cada parámetro).
+El uso de esta clase debiera ser como  sigue:
+
+```python
+# datos = iterador sobre pares de tensores x, y
+# red = objeto FFNN previamente inicializado
+
+optimizador = SGD(red.parameters(), 0.001)
+for x,y in datos:
+  y_pred = red.forward(x)
+  l = CELoss(y_pred, y)
+  red.backward(x, y, y_pred)
+  optimizador.step()
+```
