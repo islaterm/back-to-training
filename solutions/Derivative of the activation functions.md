@@ -32,7 +32,16 @@ $$
 $$
 
 $$
-  \frac{\partial\ \text{swish}(x, \ldots)}{\partial \ldots} = \ldots
+  \begin{aligned}
+    \frac{\partial}{\partial \beta}\mathit{swish}(x, \beta)
+      &= \frac{\partial}{\partial \beta}(x \cdot \sigma(\beta x)) \\
+      &= \frac{\partial x}{\partial \beta} \sigma(\beta x)
+        + x\frac{\partial}{\partial \beta}\sigma(\beta x)  \\
+      &= \frac{\partial x}{\partial \beta} \sigma(\beta x)
+        + x \frac{\partial}{\partial (\beta x)}\sigma(\beta x)
+          \frac{\partial}{\partial \beta} \beta x \\
+      &= x^2 \sigma(\beta x)(1 - \sigma(\beta x))
+  \end{aligned}
 $$
 
 $$
