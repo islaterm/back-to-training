@@ -106,3 +106,32 @@ for x,y in datos:
   red.backward(x, y, y_pred)
   optimizador.step()
 ```
+
+#### (b) Datos para carga
+
+En esta parte crearás un conjunto de datos de prueba aleatorios para probar con tu red.
+La idea de partir con datos al azar es para que te puedas concentrar en encontrar posibles bugs en
+tu implementación antes de probar tu red con cosas más complicadas.
+
+Para esta parte debes crear una clase `RandomDataset` como subclase de `Dataset` (que se encuentra
+en el módulo `torch.utils.data`).
+Tu clase debe recibir en su inicializador la cantidad de ejemplos a crear, la cantidad de
+características de cada ejemplo, y la cantidad de clases en la función objetivo.
+Debes definir la función `__len__` que retorna el largo del dataset y la función `__getitem__` que
+permite acceder a un item específico de los datos.
+Cada elemento entregado por `__getitem__` debe ser un par $(x, y)$ con un único ejemplo, donde $x$
+es un tensor que representa a los datos de entrada (características) e $y$ representa al valor
+esperado de la clasificación para esa entrada.
+
+Lo positivo de definir un conjunto de datos como `Dataset` es que luego puedes usar un `DataLoader`
+para iterar por paquetes sobre el dataset y entregarlos a una red (tal como lo hiciste en la Tarea 1
+para MNIST).
+El siguiente trozo de código de ejemplo muestra cómo debieras usar tu clase en conjunto con un
+`DataLoader`.
+
+```python
+dataset = RandomDataset(1000, 200, 10)
+data = DataLoader(dataset, batch_size=4)
+for x,y in data:
+  # x,y son paquetes de 4 ejemplos del dataset.
+```
