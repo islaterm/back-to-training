@@ -46,6 +46,38 @@ $$
 Usa la
 [Hoja de respuesta](https://colab.research.google.com/drive/1a44G8JIfuaAXmare28dCDT1gvUV1CuDP) para incluir tus expresiones.
 
+#### (b) Entropía Cruzada
+
+Comenzaremos haciendo una función para computar la pérdida de nuestra red.
+Recuerda que para dos distribuciones de probabilidad discreta $p(x)$ y $q(x)$ la entropía cruzada
+(cross entropy) entre $p$ y $q$ está dada por
+$$
+  \it{CE}(p, q) = \sum_{x} p(x) \log\left(\frac{1}{q(x)}\right) = -\sum_{x} p(x) \log q(x)
+$$
+donde $x$ varía sobre todos los posibles valores para los cuales la distribución está definida.
+
+En esta parte debes programar la función `CELoss` que recibe tensores $\mathbf{Q}_{ij}$ y
+$\mathbf{P}_{ij}$ (de las mismas dimensiones) y calcula el promedio de las entropías cruzadas de
+las distribuciones $p_i$ y $q_i$ de la siguiente forma
+$$
+  \mathit{CELoss}(\mathbf{Q}, \mathbf{P}) = \frac{1}{N} \sum_{i}\mathit{CE}(p_{i}, q_{i})
+$$
+donde $p_i(x) = \mathbf{P}_{ix}$, $q_i(x) = \mathbf{Q}_{ix}$ y $N$ es el tamaño de la primera
+dimension de los tensores (dimension `0`).
+Nota que el resultado es un escalar.
+Nota también el orden de $\mathbf{Q}$ y $\mathbf{P}$ en $\mathit{CELoss}(\mathbf{Q}, \mathbf{P})$.
+Esto no es un error, sino es la forma standard de usar la entropía cruzada como una función de
+error, en donde el primer argumento ($\mathbf{Q}$) es la aproximación (distribución de probabilidad
+erronea) y el segundo argumento ($\mathbf{P}$) es el valor al que nos queremos acercar
+(distribución de probabilidad real, o más percisamente en nuestro caso, distribución de
+probabilidad empírica).
+
+En nuestra implementación debemos evitar cualquier ocurrencia de `NaN` debido a valores en nuestras
+distribuciones de probabilidad excesivamente pequeños al calcular `torch.log`.
+Estos valores deberían devolver números negativos demasiado pequeños para procesar y dan como
+resultado `NaN`.
+El valor épsilon limitará el valor mínimo del valor original cuando `estable=True`.
+
 ### Parte 4: Descenso de gradiente y entrenamiento
 
 En esta parte programaras el algoritmo de descenso de gradiente más común y entrenarás finalmente tu
