@@ -127,6 +127,17 @@ Calcula la derivada (el *gradiente*) de $\mathcal{L}$ respecto a $u^{(L + 1)}$, 
 de código usando las funcionalidades de `torch` que calcule el valor y lo almacene en una variable
 `dL_duLm1`, suponiendo que cuentas con los tensores `y` e `y_pred` (que representa a $\hat{y}$).
 
+#### (b) Derivando la última capa (continuación)
+
+Usa la derivada de $\mathcal{L}$ con respecto a $u^{(L + 1)}$ y la regla de la cadena para
+encontrar las derivadas (*gradientes*) de $\mathcal{L}$ con respecto a $U$, $c$ y $h^{(L)}$.
+Recuerda tener cuidado con los índices de los tensores, chequear que las dimensiones sean las
+correctas y cuando sea necesario usa
+[la notación de Einstein](https://en.wikipedia.org/wiki/Einstein_notation) para simplificar tu
+vida.
+Escribe también un trozo de código para calcular estas derivadas y almacenarlas en `dL_dU`, `dL_dc`
+y `dL_dhL`.
+
 ### Parte 4: Descenso de gradiente y entrenamiento
 
 En esta parte programaras el algoritmo de descenso de gradiente más común y entrenarás finalmente tu
