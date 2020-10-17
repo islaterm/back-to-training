@@ -80,25 +80,34 @@ El valor épsilon limitará el valor mínimo del valor original cuando `estable=
 
 ### Parte 2: Más derivadas y back propagation
 
-En esta parte comenzaremos a usar el algoritmo de back propagation para poder actualizar los parámetros de nuestra red neuronal (la que empezaste a construir en la Tarea 1). Nuestra red está dada por las ecuaciones
+En esta parte comenzaremos a usar el algoritmo de back propagation para poder actualizar los
+parámetros de nuestra red neuronal (la que empezaste a construir en la Tarea 1).
+Nuestra red está dada por las ecuaciones
 $$
-\begin{aligned}
-  h^{(\ell)}  & = f^{(\ell)}(h^{(\ell - 1)} W^{(\ell)} + b^{(\ell)}) \\
-  \hat{y}     & = \mathit{softmax}(h^{(L)}U + c).
-\end{aligned}
+  \begin{aligned}
+    h^{(\ell)}  & = f^{(\ell)}(h^{(\ell - 1)} W^{(\ell)} + b^{(\ell)}) \\
+    \hat{y}     & = \mathit{softmax}(h^{(L)}U + c).
+  \end{aligned}
 $$
 
-Recuerda que en estas ecuaciones consideramos que el $h^{(0)}$ es el tensor de input, digamos $x$, y típicamente llamamos a $\hat{y}$ como $\hat{y}=\mathit{forward}(x)$.
+Recuerda que en estas ecuaciones consideramos que el $h^{(0)}$ es el tensor de input, digamos $x$,
+y típicamente llamamos a $\hat{y}$ como $\hat{y} = \mathit{forward}(x)$.
 
-Para optimizar los parámetros de nuestra red usaremos la función de pérdida/error de entropía cruzada (ver la parte anterior). Dado un conjunto (mini batch) de ejemplos $\{(x_1,y_1),\ldots,(x_B,y_B)\}$, llamemos $x$ al tensor que contiene a todos los $x_i$'s *apilados* en su dimensión $0$. Nota que $x$ tendrá una dimensión más que los $x_i$'s. Similarmente llamemos $y$ al tensor que contiene a todos los $y_i$'s. La función de pérdida de la red se puede entonces escribir como
-
+Para optimizar los parámetros de nuestra red usaremos la función de pérdida/error de entropía 
+cruzada (ver la parte anterior).
+Dado un conjunto (mini batch) de ejemplos $\{(x_1, y_1), \ldots, (x_B, y_B)\}$, llamemos $x$ al
+tensor que contiene a todos los $x_i$'s *apilados* en su dimensión $0$.
+Nota que $x$ tendrá una dimensión más que los $x_i$'s.
+Similarmente llamemos $y$ al tensor que contiene a todos los $y_i$'s. La función de pérdida de la
+red se puede entonces escribir como
 $$
-\mathcal{L} = \mathit{CELoss}(\hat{y}, {y})
+  \mathcal{L} = \mathit{CELoss}(\hat{y}, {y})
 $$
-donde $\hat{y}=\mathit{forward}(x)$ y $\mathit{CELoss}(\hat{y},{y})$ es la función de entropía cruzada aplicada a $\hat{y}$ e $y$. En esta parte computaremos las derivadas parciales
-
+donde $\hat{y} = \mathit{forward}(x)$ y $\mathit{CELoss}(\hat{y},{y})$ es la función de entropía
+cruzada aplicada a $\hat{y}$ e $y$.
+En esta parte computaremos las derivadas parciales
 $$
-\frac{\partial \mathcal{L}}{\partial \theta}
+  \frac{\partial \mathcal{L}}{\partial \theta}
 $$
 para cada parámetro $\theta$ de nuestra red.
 
