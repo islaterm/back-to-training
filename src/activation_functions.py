@@ -67,7 +67,7 @@ def d_dx_sigmoid(x: Tensor) -> Tensor:
 
 def d_dx_relu(x: Tensor) -> Tensor:
     """d/dx ReLU(x)"""
-    return torch.ones_like(x) if x > 0 else torch.zeros_like(x)
+    return torch.where(torch.tensor(x >= 0), torch.ones_like(x), torch.zeros_like(x))
 
 
 def d_dx_swish(x: Tensor, beta: float) -> Tensor:
@@ -91,4 +91,5 @@ def d_da_celu(x: Tensor, alpha: float) -> Tensor:
     return torch.zeros_like(x) if x >= 0 else torch.mul(-1, torch.div(
         torch.mul(x, torch.exp(torch.div(x, alpha))), alpha)) + torch.exp(
         torch.div(x, alpha)) - torch.ones_like(x)
+
 # endregion

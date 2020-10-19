@@ -1,14 +1,15 @@
-from typing import Callable, List, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import torch
 from torch import Tensor
 from torch.nn import Module
 
-from activation_functions import celu, relu, softmax, swish
+from activation_functions import celu, d_dx_celu, d_dx_relu, relu, softmax, swish
 
 ActivationFunction = Union[Callable[[torch.Tensor, float], Tensor], Callable[[Tensor], Tensor]]
 
 
+# noinspection PyPep8Naming
 class FFNN(Module):
     """ Implementation of a Feed Forward Neural Network (FFNN)."""
     __computed_layers: [Tensor]
@@ -68,9 +69,24 @@ class FFNN(Module):
         """"""
         it = self.__size - 1
         batch_size = x.size()[0]
-        out_layer_loss = (y_pred - y) / batch_size
+        # dL/du^{L + 1}
+        dL_duLm1 = (y_pred - y) / batch_size
         out: Tensor = self.__weights[-1]
-        out.grad = self.__activation_functions[-1]
+        # dL/dU
+        out.grad = torch.t(
+            self.__activation_functions[-1](self.__computed_layers[-1])) @ dL_duLm1
+        # dL/dc
+        self.__biases[1].grad = torch.sum(dL_duLm1, 0)
+        # dL/dh_L
+        dL_dhL = dL_duLm1 @ torch.t(out)
+        derivatives: Dict[ActivationFunction, Tuple[ActivationFunction, Optional[float]]]
+        derivatives = { relu: (d_dx_relu, None), celu: (d_dx_celu, 1) }
+        while it >= 0:
+            derivative = derivatives[self.__activation_functions[it + 1]]
+            # dL/du^(k)
+            dL_du_k = dL_dhL * derivative[0](self.__computed_layers[it + 1]) \
+                if derivative[1] is None \
+                else derivative[0](self.__computed_layers[it + 1], derivative[1])
         # TODO
 
     # region : Utility
