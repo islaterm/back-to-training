@@ -1,6 +1,8 @@
 import torch
 from torch import Tensor
 
+
+# region : Activation functions
 def sig(t: Tensor) -> Tensor:
     return torch.reciprocal(1 + torch.exp(-1 * t))
 
@@ -54,3 +56,39 @@ def softmax(t: Tensor, dim: int, stable=True) -> Tensor:
         t -= t.max(dim=dim, keepdim=True)[0]
     exp = torch.exp(t)
     return exp / torch.sum(exp, dim=dim, keepdim=True)
+
+
+# endregion
+# region : Derivatives
+def d_dx_sigmoid(x: Tensor) -> Tensor:
+    """Derivative of the sigmoid function."""
+    return torch.ones_like(x) - sig(x)
+
+
+def d_dx_relu(x: Tensor) -> Tensor:
+    """d/dx ReLU(x)"""
+    return torch.ones_like(x) if x > 0 else torch.zeros_like(x)
+
+
+def d_dx_swish(x: Tensor, beta: float) -> Tensor:
+    """d/dx swish(x, beta)"""
+    return sig(torch.mul(beta, x))
+
+
+def d_db_swish(x: Tensor, beta: float) -> Tensor:
+    """d/d(beta) swish(x, beta)"""
+    sig_bx = sig(torch.mul(beta, x))
+    return torch.square(x) * sig_bx * (torch.ones_like(sig_bx) - sig_bx)
+
+
+def d_dx_celu(x: Tensor, alpha: float) -> Tensor:
+    """d/dx CELU(x, alpha)"""
+    return torch.ones_like(x) if x >= 0 else torch.exp(torch.div(x, alpha))
+
+
+def d_da_celu(x: Tensor, alpha: float) -> Tensor:
+    """d/d(alpha) CELU(x, alpha)"""
+    return torch.zeros_like(x) if x >= 0 else torch.mul(-1, torch.div(
+        torch.mul(x, torch.exp(torch.div(x, alpha))), alpha)) + torch.exp(
+        torch.div(x, alpha)) - torch.ones_like(x)
+# endregion
