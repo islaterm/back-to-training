@@ -1,3 +1,4 @@
+from timeit import default_timer as timer
 from typing import Callable, Dict, List, Union
 
 import torch
@@ -5,6 +6,7 @@ from torch import Tensor
 from torch.nn import Module
 
 import activation_functions as ac_fn
+from autocorrect import corrector, token
 
 ActivationFunction = Union[Callable[[torch.Tensor, float], Tensor], Callable[[Tensor], Tensor]]
 
@@ -61,7 +63,7 @@ class FFNN(Module):
                                                        self.__activation_functions,
                                                        self.__function_parameters):
             out = activation(torch.mm(out, weights) + biases) if params is None else activation(
-                torch.mm(out, weights) + biases, params.item())
+                torch.mm(out, weights) + biases, *params)
             self.__computed_layers.append(out)
         return ac_fn.softmax(torch.mm(out, self.__weights[-1]) + self.__biases[-1], dim=1)
 
@@ -152,8 +154,33 @@ class FFNN(Module):
 
 
 if __name__ == '__main__':
-    model = FFNN(300, [50, 30, 25, 20], [ac_fn.relu, ac_fn.celu, ac_fn.swish, ac_fn.relu], 10,
-                 [None, .5, .5, None])
-    print(model.summary())
-    print(model.in_size)
-    print(model(torch.rand(2, 300)))
+    # Tests del API del curso
+    # (estos Tests NO sustituyen al anterior en la verificación de los gradientes)
+    for test in ['mnist-model']:
+        # Obtenemos los parámetos de la red desde el API
+        F, l_h, l_a, C, Ws, U, bs, c, X, y = corrector.get_test_data(homework=2, question="3a",
+                                                                     test=test, token=token)
+        l_a = [f for s in l_a for f in [ac_fn.sig, ac_fn.tanh, ac_fn.relu, ac_fn.celu] if
+               f.__name__ == s]
+
+        # Inicializamos modelo con parámetros del API
+        your_model = FFNN(F=F, l_h=l_h, l_a=l_a, C=C)
+        your_model.load_weights([torch.Tensor(l) for l in Ws], torch.Tensor(U),
+                                [torch.Tensor(l) for l in bs], torch.Tensor(c))
+
+        # Obtenemos el índice del parámetro Ws[1] en la lista de parámetros de tu modelo
+        idx = next(i for i, p in enumerate(your_model.parameters()) if
+                   p.size() == torch.Tensor(Ws[1]).size() and torch.all(torch.Tensor(Ws[1]) == p))
+
+        # Ejecutemos el forward de para input del API
+        y_pred = your_model(torch.Tensor(X))
+
+        # Ejecutemos el backward de tu modelo para ver como se comporta
+        s = timer()
+        your_model.backward(torch.Tensor(X), torch.Tensor(y), y_pred)
+        t = timer() - s
+
+        # Veamos todo fue OK :)
+        # Si el Test te falla algunas veces por [time], puedes hacer time=0 ;-)
+        corrector.sumbit(homework=2, question="3a", test=test, token=token,
+                         answer=list(your_model.parameters())[idx].grad.mean(), time=t)
