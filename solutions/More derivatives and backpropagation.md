@@ -66,3 +66,14 @@ $$
       &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}}
   \end{aligned}
 $$
+
+$$
+  \begin{aligned}
+    \frac{\partial\mathcal L}{\partial h^{(L)}} 
+      &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}}
+        \cdot \frac{\partial u^{(L + 1)}}{\partial h^{(L)}} \\
+      &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}}
+        \cdot \frac{\partial}{\partial h^{(L)}} (h^{(L)} U + c) \\
+      &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}} \cdot U
+  \end{aligned}
+$$
