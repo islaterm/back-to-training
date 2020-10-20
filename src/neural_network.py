@@ -173,7 +173,7 @@ if __name__ == '__main__':
                    p.size() == torch.Tensor(Ws[1]).size() and torch.all(torch.Tensor(Ws[1]) == p))
 
         # Ejecutemos el forward de para input del API
-        y_pred = your_model(torch.Tensor(X))
+        y_pred = your_model.forward(torch.Tensor(X))
 
         # Ejecutemos el backward de tu modelo para ver como se comporta
         s = timer()
