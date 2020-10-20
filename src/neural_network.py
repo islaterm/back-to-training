@@ -1,10 +1,10 @@
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Union
 
 import torch
 from torch import Tensor
 from torch.nn import Module
 
-from activation_functions import celu, d_dx_celu, d_dx_relu, relu, softmax, swish
+import activation_functions as ac_fn
 
 ActivationFunction = Union[Callable[[torch.Tensor, float], Tensor], Callable[[Tensor], Tensor]]
 
@@ -42,7 +42,7 @@ class FFNN(Module):
         self.__activation_functions = l_a
         self.__function_parameters = torch.nn.ParameterList(
             [torch.nn.Parameter(torch.tensor(p)) if p else None for p in
-             l_a_params]) if l_a_params is not None else [None] * len(l_a)
+             l_a_params]) if l_a_params is not None else [[]] * len(l_a)
         self.__computed_layers = []
 
     def forward(self, nn_input: Tensor) -> Tensor:
@@ -63,15 +63,27 @@ class FFNN(Module):
             out = activation(torch.mm(out, weights) + biases) if params is None else activation(
                 torch.mm(out, weights) + biases, params.item())
             self.__computed_layers.append(out)
-        return softmax(torch.mm(out, self.__weights[-1]) + self.__biases[-1], dim=1)
+        return ac_fn.softmax(torch.mm(out, self.__weights[-1]) + self.__biases[-1], dim=1)
 
-    def backward(self, x, y, y_pred):
-        """"""
-        it = self.__size - 1
+    def backward(self, x: Tensor, y: Tensor, y_pred: Tensor) -> None:
+        """
+        Updates the network's parameters using the backpropagation algorithm.
+
+        Args:
+            x:
+                the network's input.
+            y:
+                the expected output.
+            y_pred:
+                the actual output.
+        """
+        out: Tensor = self.__weights[-1]
+        hidden_layers: List[Tensor] = self.__weights[1:-2]
+        features: Tensor = self.__weights[0]
+
         batch_size = x.size()[0]
         # dL/du^{L + 1}
         dL_duLm1 = (y_pred - y) / batch_size
-        out: Tensor = self.__weights[-1]
         # dL/dU
         out.grad = torch.t(
             self.__activation_functions[-1](self.__computed_layers[-1])) @ dL_duLm1
@@ -79,15 +91,38 @@ class FFNN(Module):
         self.__biases[1].grad = torch.sum(dL_duLm1, 0)
         # dL/dh_L
         dL_dhL = dL_duLm1 @ torch.t(out)
-        derivatives: Dict[ActivationFunction, Tuple[ActivationFunction, Optional[float]]]
-        derivatives = { relu: (d_dx_relu, None), celu: (d_dx_celu, 1) }
-        while it >= 0:
-            derivative = derivatives[self.__activation_functions[it + 1]]
+
+        derivatives: Dict[ActivationFunction, ActivationFunction]
+        derivatives = { ac_fn.relu: ac_fn.d_dx_relu,
+                        ac_fn.celu: ac_fn.d_dx_celu,
+                        ac_fn.swish: ac_fn.d_dx_swish,
+                        ac_fn.tanh: ac_fn.d_dx_tanh,
+                        ac_fn.sig: ac_fn.d_dx_sigmoid }
+
+        layer_idx = self.__size - 1
+        while layer_idx >= 0:
+            derivative = derivatives[self.__activation_functions[layer_idx + 1]]
+            params = self.__function_parameters[layer_idx + 1]
             # dL/du^(k)
-            dL_du_k = dL_dhL * derivative[0](self.__computed_layers[it + 1]) \
-                if derivative[1] is None \
-                else derivative[0](self.__computed_layers[it + 1], derivative[1])
-        # TODO
+            dL_du_k = dL_dhL * derivative(self.__computed_layers[layer_idx + 1], *params)
+            # dL/dW^(k) = dL/du^(k) * h^(k-1)
+            hidden_layers[layer_idx].grad = torch.t(
+                self.__activation_functions[layer_idx](self.__computed_layers[layer_idx])) @ dL_du_k
+            # dL/db^(k) = dL/du^(k)
+            # Note that we move the index in 2 because 0 is the first and 1 is the last
+            self.__biases[layer_idx + 2].grad = torch.sum(dL_du_k, 0)
+            # dL/dh^(k - 1) = dL/du^(k) * W^(k)
+            dL_dhL = dL_du_k @ torch.t(hidden_layers[layer_idx])
+            layer_idx -= 1
+
+        # dL/du^(0) = dL/dh^(0) * d/dx(f(u^(0)))
+        derivative = derivatives[self.__activation_functions[0]]
+        params = self.__function_parameters[0]
+        dL_du_0 = dL_dhL * derivative(self._cache[0], *params)
+        # dL/dW^(0) = dL/du^(0) * F
+        features.grad = torch.t(x) @ dL_du_0  # el anterior es h[-1] pero ese es el x
+        # dL/db^(k) = dL/du^(k)
+        self.__biases[0].grad = torch.sum(dL_du_0, 0)
 
     # region : Utility
     def summary(self) -> None:
@@ -103,7 +138,8 @@ class FFNN(Module):
     def load_weights(self, weights: Tensor, outputs: Tensor, biases: Tensor, classes: Tensor):
         self.__weights = torch.nn.ParameterList(
             [torch.nn.Parameter(W) for W in weights + [outputs]])
-        self.__biases = torch.nn.ParameterList([torch.nn.Parameter(b) for b in biases + [classes]])
+        self.__biases = torch.nn.ParameterList(
+            [torch.nn.Parameter(b) for b in biases + [classes]])
 
     @property
     def weights(self):
@@ -116,7 +152,8 @@ class FFNN(Module):
 
 
 if __name__ == '__main__':
-    model = FFNN(300, [50, 30, 25, 20], [relu, celu, swish, relu], 10, [None, .5, .5, None])
+    model = FFNN(300, [50, 30, 25, 20], [ac_fn.relu, ac_fn.celu, ac_fn.swish, ac_fn.relu], 10,
+                 [None, .5, .5, None])
     print(model.summary())
     print(model.in_size)
     print(model(torch.rand(2, 300)))
