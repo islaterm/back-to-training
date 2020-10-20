@@ -138,6 +138,49 @@ vida.
 Escribe también un trozo de código para calcular estas derivadas y almacenarlas en `dL_dU`, `dL_dc`
 y `dL_dhL`.
 
+#### (c) Derivando desde las capas escondidas
+
+Ahora derivaremos las capas escondidas en general para todas las funciones de activación que consideramos en esta tarea. 
+**Importante: esta parte es larga no la empieces a hacer tarde**. Consideremos la capa $k$, en
+este caso tenemos
+
+$$
+  h^{(k)} = f(h^{(k - 1)}W^{(k)} + b^{(k)})
+$$
+
+donde $f$ es una de las funciones de activación $\sigma, \tanh, \mathit{ReLU}, \mathit{CELU}, \mathit{swish}$.
+Lo que queremos es computar las derivadas parciarles de $\mathcal{L}$ con respecto a $W^{(k)}$, 
+$b^{(k)}$ y  $h^{(k - 1)}$.
+Para esto consideremos
+
+$$
+  u^{(k)}=h^{(k - 1)} W^{(k)} + b^{(k)}.
+$$
+
+Supondremos que ya tenemos computado (antes) el gradiente de $\mathcal{L}$ con respecto a 
+$h^{(k)}$ ($\partial \mathcal{L}/\partial h^{(k)}$). 
+Para cada función de activación de entre 
+$\mathit{ReLU}, \mathit{CELU}, \mathit{swish}$, calcula primero 
+
+$$
+  \frac{\partial \mathcal{L}}{\partial u^{(k)}}
+$$
+
+usando $\partial \mathcal{L}/\partial h^{(k)}$ y luego usa $\partial \mathcal{L}/\partial u^{(k)}$
+y la regla de la cadena para calcular
+
+$$
+  \frac{\partial \mathcal{L}}{\partial W^{(k)}}, \frac{\partial \mathcal{L}}{\partial b^{(k)}},
+  \frac{\partial \mathcal{L}}{\partial h^{(k-1)}}. 
+$$
+
+Crea trozos de código para cada uno de los cálculos de los gradientes.
+Este código lo usaremos luego en la función `backward` de tu red.
+
+Usa la 
+[Hoja de respuesta](https://colab.research.google.com/drive/1a44G8JIfuaAXmare28dCDT1gvUV1CuDP) 
+para tus cálculos.
+
 ### Parte 4: Descenso de gradiente y entrenamiento
 
 En esta parte programaras el algoritmo de descenso de gradiente más común y entrenarás finalmente tu
