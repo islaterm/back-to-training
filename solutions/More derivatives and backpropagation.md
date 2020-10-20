@@ -1,4 +1,4 @@
-# Last layer derivative
+## Last layer derivative
 
 Let $S(T)$ be the softmax function of a tensor $T$.
 The derivative of $S$ is given by:
@@ -40,3 +40,18 @@ $$
   \end{aligned}
 $$
 
+## Last layer derivative (cont.)
+
+Considering that $u^{(L + 1)} = h^{(L)} U + c$ and $\hat{y} = S(u^{(L + 1)})$.
+We can compute the following derivatives:
+
+$$
+  \begin{aligned}
+    \frac{\partial \mathcal{L}}{\partial U}
+      &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}}
+        \cdot \frac{\partial u^{(L + 1)}}{\partial U} \\
+      &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}} 
+        \cdot \frac{\partial}{\partial U} (h^{(L)} U + c) \\
+      &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}} h^{(L)}
+  \end{aligned}
+$$
