@@ -55,3 +55,14 @@ $$
       &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}} h^{(L)}
   \end{aligned}
 $$
+
+$$
+  \begin{aligned}
+    \frac{\partial\mathcal L}{\partial c} 
+      &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}}
+        \cdot \frac{\partial u^{(L + 1)}}{\partial c} \\
+      &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}}
+        \cdot \frac{\partial}{\partial c} (h^{(L)} U + c) \\
+      &= \frac{\partial \mathcal{L}}{\partial u^{(L + 1)}}
+  \end{aligned}
+$$
