@@ -37,7 +37,7 @@ módulo [`torch`](https://pytorch.org/docs/stable/torch.html).
 
 #### (a) Derivando las funciones de activación
 
-En esta parte debes calcular a mano las derivadas de las funciones `relu`, `swish` y `celu` que usamos en la [Tarea 1](https://colab.research.google.com/drive/1aeuSRjj_kQ_uFEBSJ9bRuyr4G4MY4FAi). Recuerda que `swish` y `celu` tienen ambas parámetros adicionales así que debes calcular las derivadas (parciales) con respecto a ellos también. Intenta expresar las derivadas en términos de aplicaciones de la misma función (o sub expresiones de esta). Por ejemplo, si derivas la función $\text{sigmoid}(x)$ (hazlo! es un buen ejercicio) encontrarás que su derivada se puede expresar como:
+En esta parte debes calcular a mano las derivadas de las funciones `relu`, `swish` y `celu` que usamos en la [Tarea 1](https://colab.research.google.com/drive/1aeuSRjj_kQ_uFEBSJ9bRuyr4G4MY4FAi). Recuerda que `swish` y `celu` tienen ambas parámetros adicionales así que debes calcular las derivadas (parciales) con respecto a ellos también. Intenta expresar las derivadas en términos de aplicaciones de la misma función (o sub expresiones de esta). Por ejemplo, si derivas la función $\mathrm{sigmoid}(x)$ (hazlo! es un buen ejercicio) encontrarás que su derivada se puede expresar como:
 
 $$
   \frac{\partial\ \text{sigmoid}(x)}{\partial x} = \text{sigmoid}(x)\big(1 - \text{sigmoid}(x)\big)
@@ -180,6 +180,25 @@ Este código lo usaremos luego en la función `backward` de tu red.
 Usa la 
 [Hoja de respuesta](https://colab.research.google.com/drive/1a44G8JIfuaAXmare28dCDT1gvUV1CuDP) 
 para tus cálculos.
+
+### Parte 3: Backpropagation en nuestra red
+
+En esta parte programaremos todos nuestros cálculos anteriores dentro del método `backward` de
+nuestra red.
+
+#### (a) Método `backward`
+
+Programa un método `backward` dentro de la clase FFNN que hiciste para la Tarea 1.
+El método debiera recibir como entrada tres tensores `x`, `y`, `y_pred`, y debiera computar todos
+los gradientes para cada uno de los parámetros de la red (con todas las suposiciones que hicimos en
+la Parte 3, incluyendo el uso de entropía cruzada como función de pérdida).
+Recuerda computar los gradientes también para capas escondidas con activaciones $\mathrm{sig}$ y $\mathrm{tanh}$.
+
+Podemos aprovecharnos de las funcionalidades de la clase `torch.nn.Parameter` para almacenar los 
+resultados de cada gradiente.
+De hecho, cada objeto de la clase `torch.nn.Parameter` tiene un atributo `grad` que está pensado
+específicamente para almacenar los valores computados a medida que se hace backpropagation.
+Utiliza este atributo para almacenar el gradiente del parámetro correspondiente.
 
 ### Parte 4: Descenso de gradiente y entrenamiento
 
