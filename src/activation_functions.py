@@ -1,3 +1,10 @@
+"""
+"Back to training" (c) by Ignacio Slater M.
+"Back to training" is licensed under a
+Creative Commons Attribution 4.0 International License.
+You should have received a copy of the license along with this
+work. If not, see <http://creativecommons.org/licenses/by/4.0/>.
+"""
 import torch
 from torch import Tensor
 
@@ -97,4 +104,8 @@ def d_da_celu(x: Tensor, alpha: float) -> Tensor:
         torch.mul(x, torch.exp(torch.div(x, alpha))), alpha)) + torch.exp(
         torch.div(x, alpha)) - torch.ones_like(x))
 
+
 # endregion
+
+derivatives = { sig: d_dx_sigmoid, tanh: d_dx_tanh, relu: d_dx_relu, swish: d_dx_swish,
+                celu: d_dx_celu }
